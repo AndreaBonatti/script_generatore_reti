@@ -11,42 +11,57 @@ def network_generator():
     while not exit_condition:
         number_of_central_components = int(input("Inserisci il numero di componenti centrali della rete(>0): "))
         if number_of_central_components > 0:
+            links = ["L0", "L1"]
+            for i in range(0, 2*number_of_central_components):
+                links.append("L" + str(2 + i))
             exit_condition = True
             # Generation of "Rete_Automi" file
+            count = 0
+            lindx = ""
+            loutdx = ""
+            linsx = links[count]
+            loutsx = links[count + 1]
+            components = ["IC"]
             data = {"IC": {"initial": "IC-s0",
                            "states": ["IC-s0","IC-s1","IC-s2"],
                            "transitions": [
-                      {
-                        "name": "IC-T0",
-                        "src": "IC-s0",
-                        "dst": "IC-s1",
-                        "in": "null",
-                        "out": [["E0", "L0"]]
-                      },
-                      {
-                        "name": "IC-T1",
-                        "src": "IC-s1",
-                        "dst": "IC-s0",
-                        "in": ["E2","L1"],
-                        "out": [["E4", "L0"]]
-                      },
-                      {
-                        "name": "IC-T2",
-                        "src": "IC-s1",
-                        "dst": "IC-s2",
-                        "in": ["E2","L1"],
-                        "out": "null"
-                      },
-                      {
-                        "name": "IC-T3",
-                        "src": "IC-s2",
-                        "dst": "IC-s0",
-                        "in": "null",
-                        "out": [["E4","L0"]]
-                      }
-                    ]}}
+                              {
+                                "name": "IC-T0",
+                                "src": "IC-s0",
+                                "dst": "IC-s1",
+                                "in": "null",
+                                "out": [["E0", linsx]]
+                              },
+                              {
+                                "name": "IC-T1",
+                                "src": "IC-s1",
+                                "dst": "IC-s0",
+                                "in": ["E2", loutsx],
+                                "out": [["E4", linsx]]
+                              },
+                              {
+                                "name": "IC-T2",
+                                "src": "IC-s1",
+                                "dst": "IC-s2",
+                                "in": ["E2", loutsx],
+                                "out": "null"
+                              },
+                              {
+                                "name": "IC-T3",
+                                "src": "IC-s2",
+                                "dst": "IC-s0",
+                                "in": "null",
+                                "out": [["E4", linsx]]
+                              }
+                           ]}}
             for index in range(0, number_of_central_components):
+                count += 2
+                lindx = links[count + 1]
+                loutdx = links[count]
+                linsx = links[count - 2]
+                loutsx = links[count - 1]
                 component_name = "C" + str(index)
+                components.append(component_name)
                 data[component_name] = {"initial": component_name + "-s3",
                                         "states": [component_name + "-s3",component_name + "-s4",component_name + "-s5"],
                                         "transitions": [
@@ -54,31 +69,36 @@ def network_generator():
                                                 "name": component_name + "-T4",
                                                 "src": component_name + "-s3",
                                                 "dst": component_name + "-s4",
-                                                "in": ["E0", "L0"],
-                                                "out": [["E0", "L2"]]
+                                                "in": ["E0", linsx],
+                                                "out": [["E0", loutdx]]
                                               },
                                               {
                                                 "name": component_name + "-T5",
                                                 "src": component_name + "-s4",
                                                 "dst": component_name + "-s5",
-                                                "in": ["E2", "L3"],
-                                                "out": [["E2", "L1"]]
+                                                "in": ["E2", lindx],
+                                                "out": [["E2", loutsx]]
                                               },
                                               {
                                                 "name": component_name + "-T6",
                                                 "src": component_name + "-s5",
                                                 "dst": component_name + "-s3",
-                                                "in": ["E4", "L0"],
-                                                "out": [["E4", "L2"]]
+                                                "in": ["E4", linsx],
+                                                "out": [["E4", loutdx]]
                                               },
                                               {
                                                 "name": component_name + "-T7",
                                                 "src": component_name + "-s4",
                                                 "dst": component_name + "-s3",
-                                                "in": ["E2", "L3"],
-                                                "out": [["E2", "L1"]]
+                                                "in": ["E2", lindx],
+                                                "out": [["E2", loutsx]]
                                               }
                                             ]}
+            count += 2
+            lindx = ""
+            loutdx = ""
+            linsx = links[count - 2]
+            loutsx = links[count - 1]
             data["IF"] = {"initial": "IF-s6",
                           "states": ["IF-s6","IF-s7","IF-s8"],
                           "transitions": [
@@ -86,21 +106,21 @@ def network_generator():
                                 "name": "IF-T8",
                                 "src": "IF-s6",
                                 "dst": "IF-s7",
-                                "in": ["E0", "L2"],
-                                "out": [["E2", "L3"]]
+                                "in": ["E0", linsx],
+                                "out": [["E2", loutsx]]
                               },
                               {
                                 "name": "IF-T9",
                                 "src": "IF-s7",
                                 "dst": "IF-s6",
-                                "in": ["E4","L2"],
+                                "in": ["E4", linsx],
                                 "out": "null"
                               },
                               {
                                 "name": "IF-T10",
                                 "src": "IF-s7",
                                 "dst": "IF-s8",
-                                "in": ["E4","L2"],
+                                "in": ["E4", linsx],
                                 "out": "null"
                               },
                               {
@@ -111,12 +131,15 @@ def network_generator():
                                 "out": "null"
                               }
                             ]}
-            for index in range(0, number_of_central_components):
-                component_name = "C" + str(index)
-                data["Linsx-" + component_name] = {"src": "IC", "dst": component_name}
-                data["Loutsx-" + component_name] = {"src": component_name, "dst": "IC"}
-                data["Loutdx-" + component_name] = {"src": component_name, "dst": "IF"}
-                data["Lindx-" + component_name] = {"src": "IF", "dst": component_name}
+            components.append("IF")
+            count = 0
+            for i in range(0, len(components)-1):
+                lout, lin = links[count], links[count + 1]
+                first_component = components[i]
+                second_component = components[i + 1]
+                data[lout] = {"src": first_component, "dst": second_component}
+                data[lin] = {"src": second_component, "dst": first_component}
+                count += 2
             with open(network_name + "/Rete_Automi.json", 'w') as outfile:
                 json.dump(data, outfile)
             # Generation of "Osservabilità" file
