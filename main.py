@@ -11,9 +11,19 @@ def network_generator():
     while not exit_condition:
         number_of_central_components = int(input("Inserisci il numero di componenti centrali della rete(>0): "))
         if number_of_central_components > 0:
-            links = ["L0", "L1"]
-            for i in range(0, 2*number_of_central_components):
-                links.append("L" + str(2 + i))
+            links = []
+            for i in range(0, number_of_central_components):
+                if i == 0:
+                    links.append("Li0")
+                    links.append("L0i")
+                if i != 0:
+                    links.append("L" + str(i-1) + str(i))
+                    links.append("L" + str(i) + str(i-1))
+                if i == number_of_central_components - 1:
+                    links.append("L" + str(i) + "f")
+                    links.append("Lf" + str(i))
+            print(links)
+            input()
             exit_condition = True
             # Generation of "Rete_Automi" file
             count = 0
