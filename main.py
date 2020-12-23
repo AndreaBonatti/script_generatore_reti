@@ -22,8 +22,6 @@ def network_generator():
                 if i == number_of_central_components - 1:
                     links.append("L" + str(i) + "f")
                     links.append("Lf" + str(i))
-            print(links)
-            input()
             exit_condition = True
             # Generation of "Rete_Automi" file
             count = 0
